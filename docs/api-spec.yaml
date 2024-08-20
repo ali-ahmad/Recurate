@@ -1,0 +1,112 @@
+openapi: 3.0.0
+info:
+  title: Github API
+  version: 1.0.0
+
+paths:
+  /api/v1/repo/stats:
+    get:
+      summary: Get a summary of pull requests for all months
+      description: Retrieve a summary of opened and closed pull requests grouped by month for the Downshift repository.
+      responses:
+        200:
+          description: A successful response with the summary of pull requests by month
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Summary'
+
+  api/v1/repo/stats/summary:
+    get:
+      summary: Get a summary of pull requests for a specific month and year
+      description: Retrieve a summary of opened and closed pull requests for a given month and year in the Downshift repository.
+      parameters:
+        - name: month
+          in: query
+          description: The target month (1-12)
+          required: true
+          schema:
+            type: integer
+            minimum: 1
+            maximum: 12
+        - name: year
+          in: query
+          description: The target year
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A successful response with the summary of pull requests for the specified month and year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Summary'
+        400:
+          description: Bad request due to missing required query parameters
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No data found for the given month and year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+  /api/v1/repo/stats/year-summary:
+    get:
+      summary: Get a summary of pull requests for a specific year
+      description: Retrieve a summary of opened and closed pull requests grouped by month for a given year in the Downshift repository.
+      parameters:
+        - name: year
+          in: query
+          description: The target year
+          required: true
+          schema:
+            type: integer
+      responses:
+        200:
+          description: A successful response with the summary of pull requests by month for the specified year
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Summary'
+        400:
+          description: Bad request due to missing required query parameter
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+        404:
+          description: No data found for the given year
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    Summary:
+      type: object
+      properties:
+        month:
+          type: string
+          description: The month and year (e.g., January 2021)
+        opened:
+          type: integer
+          description: The number of pull requests opened in the specified month
+        closed:
+          type: integer
+          description: The number of pull requests closed in the specified month
+    Error:
+      type: object
+      properties:
+        error:
+          type: string
+          description: The error message
